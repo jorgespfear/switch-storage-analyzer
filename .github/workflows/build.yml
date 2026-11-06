@@ -8,8 +8,15 @@ jobs:
     container: devkitpro/devkita64:latest
     steps:
       - uses: actions/checkout@v4
-      - name: Instalar SDL2 para Switch
-        run: dkp-pacman -Syu --noconfirm switch-sdl2
+      - name: Instalar SDL2 para Switch (con reintentos)
+        run: |
+          for i in 1 2 3 4 5; do
+            if dkp-pacman -Sy --noconfirm switch-sdl2; then exit 0; fi
+            echo "Intento $i fallido, reintentando en 30s..."
+            sleep 30
+          done
+          echo "Reintentando sin sincronizar bases de datos..."
+          dkp-pacman -S --noconfirm switch-sdl2
       - name: Compilar
         run: make
       - name: Subir el .nro
